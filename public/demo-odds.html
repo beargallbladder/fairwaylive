@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FairwayLive - Odds Breakdown Demo</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #000;
+        }
+        .demo-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .demo-header h1 {
+            color: var(--green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .demo-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+        .demo-section h2 {
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+        .demo-action {
+            background: var(--dark-gray);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .demo-action button {
+            background: var(--green);
+            color: var(--black);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>⛳ FairwayLive</h1>
+            <p>See How Odds Work</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>Live Betting Odds</h2>
+            <div class="betting-ticker">
+                <div class="ticker-header">
+                    <div class="ticker-title">LIVE ODDS</div>
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        <span style="font-size: 0.8rem;">VEGAS MODE</span>
+                    </div>
+                </div>
+                
+                <div class="odds-explainer">
+                    <span class="explainer-icon">💡</span>
+                    <span class="explainer-text">Odds react to your voice & performance</span>
+                </div>
+                
+                <div class="bets-list" id="betsList">
+                    <!-- Bets will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>How It Works</h2>
+            <div class="demo-action">
+                <p>Say "I'm crushing it!" to see odds drop</p>
+                <button onclick="simulateConfidence()">Simulate Confidence</button>
+            </div>
+            <div class="demo-action">
+                <p>Say "This is terrible" to see odds rise</p>
+                <button onclick="simulateStruggle()">Simulate Struggle</button>
+            </div>
+            <div class="demo-action">
+                <p>Click any bet to see what drives the odds</p>
+            </div>
+        </div>
+
+        <div id="oddsBreakdownContainer"></div>
+    </div>
+
+    <script src="/js/betting-engine.js"></script>
+    <script>
+        const betting = new BettingEngine();
+        const players = [
+            { id: 'user', name: 'You' },
+            { id: 'mike', name: 'Mike' },
+            { id: 'tom', name: 'Tom' },
+            { id: 'john', name: 'John' }
+        ];
+
+        function renderBets() {
+            const bets = betting.generateLiveBets({ currentHole: 7 }, players);
+            const betsList = document.getElementById('betsList');
+            
+            betsList.innerHTML = bets.slice(0, 5).map(bet => `
+                <div class="bet-item" onclick="showBreakdown('${bet.id}')" style="cursor: pointer;">
+                    <div class="bet-details">
+                        <div class="bet-player">${bet.player || 'Field'}</div>
+                        <div class="bet-description">${bet.description}</div>
+                    </div>
+                    <div class="bet-odds ${parseFloat(bet.odds) < 2.0 ? 'odds-hot' : ''}">${bet.odds}x</div>
+                </div>
+            `).join('');
+            
+            // Store bets for breakdown
+            window.currentBets = bets;
+        }
+
+        function showBreakdown(betId) {
+            const bet = window.currentBets.find(b => b.id === betId);
+            if (!bet || !bet.factors) return;
+
+            // Remove existing breakdown
+            const existing = document.querySelector('.odds-breakdown');
+            if (existing) existing.remove();
+
+            const breakdown = document.createElement('div');
+            breakdown.className = 'odds-breakdown';
+            breakdown.innerHTML = `
+                <div class="breakdown-header">
+                    <h4>📊 Odds Breakdown</h4>
+                    <span class="close-btn" onclick="this.parentElement.parentElement.remove()">×</span>
+                </div>
+                <div class="factors-list">
+                    ${bet.factors.map(factor => `
+                        <div class="factor-row">
+                            <span class="factor-icon">${factor.icon}</span>
+                            <span class="factor-name">${factor.name}</span>
+                            <span class="factor-value ${factor.value > 0 ? 'positive' : factor.value < 0 ? 'negative' : ''}">${factor.value > 0 ? '+' : ''}${(factor.value * 100).toFixed(0)}%</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="breakdown-footer">
+                    <div class="final-odds">
+                        <span>Final Odds:</span>
+                        <span class="odds-value">${bet.odds}x</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('oddsBreakdownContainer').appendChild(breakdown);
+        }
+
+        function simulateConfidence() {
+            betting.analyzeTranscription('user', "I crushed that drive! This is money!");
+            renderBets();
+            showNotification('🔥 ODDS DROPPING - Confidence detected!', 'hot');
+        }
+
+        function simulateStruggle() {
+            betting.analyzeTranscription('user', "Fuck this hole, I'm in the water again");
+            renderBets();
+            showNotification('📈 ODDS RISING - Struggle detected!', 'cold');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'hot' ? 'var(--hot)' : '#4169E1'};
+                color: var(--white);
+                padding: 1rem 2rem;
+                border-radius: 50px;
+                z-index: 1000;
+                font-weight: 600;
+                animation: slideDown 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initial render
+        renderBets();
+    </script>
+</body>
+</html>
