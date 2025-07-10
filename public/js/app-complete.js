@@ -26,6 +26,24 @@ class FairwayLiveComplete {
     init() {
         this.render();
         this.attachEventListeners();
+        
+        // Initialize bot advocates and excuse agents
+        this.botAdvocates = window.botAdvocates;
+        this.excuseAgents = window.excuseAgents;
+        
+        if (this.botAdvocates) {
+            // Assign advocate when app starts
+            setTimeout(() => {
+                this.botAdvocates.assignPlayerAdvocate('player1');
+            }, 2000);
+        }
+        
+        if (this.excuseAgents) {
+            // Assign excuse agent too
+            setTimeout(() => {
+                this.excuseAgents.assignExcuseAgent('random');
+            }, 4000);
+        }
     }
     
     render() {
@@ -50,7 +68,7 @@ class FairwayLiveComplete {
         return `
             <div class="screen player-select active">
                 <div class="header-complete">
-                    <h1>⛳ FairwayLive</h1>
+                    <h1>⛳ Hey Homeboy</h1>
                     <p>Who's playing today?</p>
                 </div>
                 
@@ -340,6 +358,17 @@ class FairwayLiveComplete {
                 betIntent
             };
             
+            // Trigger bot advocate reaction to bet placement
+            if (this.botAdvocates && betIntent.amount > 0) {
+                this.botAdvocates.reactToPlayerAction({
+                    type: 'bet_placed'
+                }, {
+                    betAmount: betIntent.amount,
+                    confidence: betIntent.confidence || 'medium',
+                    transcription: transcription
+                });
+            }
+            
             this.render();
         }, 1500);
     }
@@ -530,6 +559,39 @@ class FairwayLiveComplete {
         
         // Update scores
         this.state.players[0].currentScore += (score - 4);
+        
+        // Trigger bot advocate reaction to shot performance
+        const parDiff = score - 4; // Assume par 4 for now
+        let shotQuality = 'average';
+        
+        if (parDiff <= -2) shotQuality = 'great'; // Eagle or better
+        else if (parDiff === -1) shotQuality = 'great'; // Birdie
+        else if (parDiff === 0) shotQuality = 'good'; // Par
+        else if (parDiff >= 2) shotQuality = 'bad'; // Double bogey or worse
+        
+        if (this.botAdvocates) {
+            this.botAdvocates.reactToPlayerAction({
+                type: shotQuality === 'great' || shotQuality === 'good' ? 'great_shot' : 'bad_shot'
+            }, {
+                score: score,
+                par: 4,
+                quality: shotQuality,
+                hole: this.state.currentHole
+            });
+        }
+        
+        // Trigger excuse agent for bad shots
+        if (this.excuseAgents && (shotQuality === 'bad' || parDiff >= 1)) {
+            this.excuseAgents.makeExcuseForShot({
+                score: score,
+                par: 4,
+                type: 'general',
+                quality: shotQuality,
+                hole: this.state.currentHole,
+                lie: 'fairway',
+                pressure: this.state.activeBets.length > 0 ? 'high' : 'low'
+            });
+        }
         
         // Move to next hole
         setTimeout(() => {

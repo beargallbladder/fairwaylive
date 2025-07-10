@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="theme-color" content="#000000">
-    <title>FairwayLive - Complete Vegas Golf Experience</title>
+    <title>Hey Homeboy - Complete Vegas Golf Experience</title>
     <link rel="stylesheet" href="/css/app.css">
     <link rel="stylesheet" href="/css/app-complete.css">
     <link rel="manifest" href="/manifest.json">
@@ -20,10 +20,25 @@
     <script src="/js/betting-engine.js"></script>
     <script src="/js/bookmaker-agents.js"></script>
     <script src="/js/social-feed.js"></script>
+    <script src="/js/bot-advocates.js"></script>
+    <script src="/js/excuse-agents.js"></script>
+    <script src="/js/ai-hierarchy.js"></script>
     
     <!-- Load the COMPLETE app experience -->
     <script src="/js/app-complete.js"></script>
     
+    <!-- Demo Controls -->
+    <div id="demo-controls" style="position: fixed; top: 10px; right: 10px; z-index: 10000; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px;">
+        <button onclick="window.aiHierarchy.simulateFriendJoining('Mike')" 
+                style="padding: 5px 10px; margin: 2px; background: #27ae60; color: white; border: none; border-radius: 4px; font-size: 12px;">
+            Friend Joins
+        </button>
+        <button onclick="window.aiHierarchy.simulateFriendLeaving()" 
+                style="padding: 5px 10px; margin: 2px; background: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 12px;">
+            Friend Leaves
+        </button>
+    </div>
+
     <style>
         /* Quick fixes for complete experience */
         .btn-primary:disabled {
