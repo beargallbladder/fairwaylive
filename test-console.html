@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FairwayLive Console Test</title>
+</head>
+<body>
+    <h1>FairwayLive Console Test</h1>
+    <iframe id="testFrame" src="http://localhost:3001" width="400" height="800"></iframe>
+    
+    <div id="results">
+        <h2>Test Results:</h2>
+        <pre id="output"></pre>
+    </div>
+    
+    <script>
+        const output = document.getElementById('output');
+        const iframe = document.getElementById('testFrame');
+        
+        // Wait for iframe to load
+        iframe.onload = function() {
+            setTimeout(() => {
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    const results = [];
+                    
+                    // Check if app initialized
+                    results.push('App object exists: ' + (iframeWindow.app !== undefined));
+                    
+                    // Check dependencies
+                    results.push('SwarmClient exists: ' + (iframeWindow.SwarmClient !== undefined));
+                    results.push('BettingEngine exists: ' + (iframeWindow.BettingEngine !== undefined));
+                    results.push('BookmakerAgents exists: ' + (iframeWindow.BookmakerAgents !== undefined));
+                    results.push('socialFeed exists: ' + (iframeWindow.socialFeed !== undefined));
+                    
+                    // Check app state
+                    if (iframeWindow.app) {
+                        results.push('App state: ' + JSON.stringify(iframeWindow.app.state.screen));
+                    }
+                    
+                    // Check for elements
+                    const doc = iframe.contentDocument;
+                    results.push('Landing screen exists: ' + (doc.querySelector('.screen.landing') !== null));
+                    results.push('Start button exists: ' + (doc.querySelector('.btn-primary') !== null));
+                    
+                    output.textContent = results.join('\n');
+                } catch (e) {
+                    output.textContent = 'Error accessing iframe: ' + e.message + '\nThis might be due to CORS restrictions.';
+                }
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

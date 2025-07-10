@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairwayLive - Working Test</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <div id="app">
+        <div class="screen landing active">
+            <div class="logo">⛳ FairwayLive</div>
+            <div class="tagline">Let's test what actually works</div>
+            
+            <button class="btn-primary" onclick="testVoice()">
+                Test Voice Recording
+            </button>
+            
+            <button class="btn-secondary" onclick="testBetting()">
+                Test Betting System
+            </button>
+            
+            <button class="btn-secondary" onclick="testBookmakers()">
+                Test Bookmakers
+            </button>
+            
+            <div id="output" style="margin-top: 2rem; padding: 1rem; background: var(--dark-gray); border-radius: 10px; display: none;">
+                <h3>Test Output:</h3>
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test voice recording
+        async function testVoice() {
+            const output = document.getElementById('output');
+            const results = document.getElementById('results');
+            output.style.display = 'block';
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                results.innerHTML = '✅ Microphone access works!<br>';
+                
+                // Test recording
+                const mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+                
+                mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    results.innerHTML += `✅ Recording works! Size: ${blob.size} bytes<br>`;
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                
+                mediaRecorder.start();
+                results.innerHTML += '🎙️ Recording for 2 seconds...<br>';
+                
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 2000);
+                
+            } catch (err) {
+                results.innerHTML = `❌ Microphone error: ${err.message}`;
+            }
+        }
+        
+        // Test betting system
+        function testBetting() {
+            const output = document.getElementById('output');
+            const results = document.getElementById('results');
+            output.style.display = 'block';
+            
+            try {
+                // Check if BettingEngine exists
+                if (typeof BettingEngine === 'undefined') {
+                    results.innerHTML = '❌ BettingEngine not loaded!';
+                    return;
+                }
+                
+                const betting = new BettingEngine();
+                results.innerHTML = '✅ BettingEngine loaded!<br>';
+                
+                // Test sentiment analysis
+                const analysis = betting.analyzeTranscription('user', "I'm crushing it! This is money!");
+                results.innerHTML += `✅ Sentiment analysis: ${analysis.sentiment.toFixed(2)}<br>`;
+                
+                // Test bet generation
+                const bets = betting.generateLiveBets({ currentHole: 7 }, [
+                    { id: 'user', name: 'You' },
+                    { id: 'mike', name: 'Mike' }
+                ]);
+                
+                results.innerHTML += `✅ Generated ${bets.length} bets:<br>`;
+                bets.slice(0, 3).forEach(bet => {
+                    results.innerHTML += `&nbsp;&nbsp;- ${bet.description}: ${bet.odds}x<br>`;
+                });
+                
+            } catch (err) {
+                results.innerHTML = `❌ Betting error: ${err.message}<br>${err.stack}`;
+            }
+        }
+        
+        // Test bookmakers
+        function testBookmakers() {
+            const output = document.getElementById('output');
+            const results = document.getElementById('results');
+            output.style.display = 'block';
+            
+            try {
+                // Check if BookmakerAgents exists
+                if (typeof BookmakerAgents === 'undefined') {
+                    results.innerHTML = '❌ BookmakerAgents not loaded!';
+                    return;
+                }
+                
+                const bookmakers = new BookmakerAgents();
+                results.innerHTML = '✅ BookmakerAgents loaded!<br>';
+                results.innerHTML += `✅ ${bookmakers.agents.length} agents available<br>`;
+                
+                // Test chatter generation
+                const chatter = bookmakers.generateBookieChatter({
+                    type: 'confidence_detected',
+                    player: 'You'
+                });
+                
+                results.innerHTML += `✅ Generated chatter:<br>`;
+                results.innerHTML += `&nbsp;&nbsp;"${chatter.message}"<br>`;
+                results.innerHTML += `&nbsp;&nbsp;- ${chatter.agent.name}<br>`;
+                
+            } catch (err) {
+                results.innerHTML = `❌ Bookmaker error: ${err.message}<br>${err.stack}`;
+            }
+        }
+        
+        // Load scripts
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+        
+        // Load all required scripts
+        async function init() {
+            try {
+                await loadScript('/js/betting-engine.js');
+                await loadScript('/js/bookmaker-agents.js');
+                console.log('✅ All scripts loaded');
+            } catch (err) {
+                console.error('❌ Script loading error:', err);
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairwayLive - Comprehensive Test Runner</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        #status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .status-ready { background: #d4edda; color: #155724; }
+        .status-running { background: #cce5ff; color: #004085; }
+        .status-complete { background: #d1ecf1; color: #0c5460; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        #results {
+            margin-top: 30px;
+        }
+        .agent-result {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .agent-result.pass { border-color: #27ae60; }
+        .agent-result.fail { border-color: #e74c3c; }
+        .agent-result.partial { border-color: #f39c12; }
+        .agent-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .metric {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .recommendations {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .recommendations h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .issue {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .test-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛳ FairwayLive - Comprehensive Test Runner</h1>
+        
+        <div id="status" class="status-ready">
+            Test suite ready. Click "Run All Tests" to begin comprehensive testing.
+        </div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="runAllTests()">
+                🚀 Run All Tests
+            </button>
+            <button class="btn-secondary" onclick="runAgent('module-fix')">
+                🔧 Module Fix Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('integration-test')">
+                🔌 Integration Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('ui-flow-test')">
+                🎨 UI Flow Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('voice-media-test')">
+                🎤 Voice/Media Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('betting-logic')">
+                💰 Betting Logic Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('performance')">
+                ⚡ Performance Only
+            </button>
+            <button class="btn-secondary" onclick="runAgent('cross-browser')">
+                🌐 Cross-Browser Only
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">
+                🗑️ Clear Results
+            </button>
+            <button class="btn-success" onclick="downloadReport()" id="downloadBtn" style="display:none;">
+                📥 Download Report
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <!-- Load FairwayLive app first to test against -->
+    <script src="/js/swarm-client.js"></script>
+    <script src="/js/betting-engine.js"></script>
+    <script src="/js/bookmaker-agents.js"></script>
+    <script src="/js/social-feed.js"></script>
+    <script src="/js/app.js"></script>
+
+    <!-- Load test agents -->
+    <script src="/test-agents/module-fix-agent.js"></script>
+    <script src="/test-agents/integration-test-agent.js"></script>
+    <script src="/test-agents/ui-flow-test-agent.js"></script>
+    <script src="/test-agents/voice-media-test-agent.js"></script>
+    <script src="/test-agents/betting-logic-agent.js"></script>
+    <script src="/test-agents/performance-agent.js"></script>
+    <script src="/test-agents/cross-browser-agent.js"></script>
+    <script src="/test-agents/test-coordinator.js"></script>
+
+    <script>
+        let coordinator;
+        let currentReport = null;
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            coordinator = new TestCoordinator();
+            await coordinator.initialize();
+            updateStatus('Test suite initialized with ' + coordinator.agents.length + ' agents', 'ready');
+        });
+
+        async function runAllTests() {
+            updateStatus('Running comprehensive test suite...', 'running');
+            document.getElementById('results').innerHTML = '<div class="loading"></div> Running tests...';
+            
+            try {
+                const report = await coordinator.runAllTests();
+                currentReport = report;
+                displayResults(report);
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+                updateStatus('Test suite completed!', 'complete');
+            } catch (error) {
+                updateStatus('Test suite failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function runAgent(agentName) {
+            updateStatus(`Running ${agentName} agent...`, 'running');
+            
+            try {
+                const agent = coordinator.agents.find(a => a.name === agentName);
+                if (!agent) {
+                    throw new Error(`Agent ${agentName} not found`);
+                }
+                
+                const result = await agent.run();
+                displayAgentResult(agentName, result);
+                updateStatus(`${agentName} agent completed!`, 'complete');
+            } catch (error) {
+                updateStatus(`${agentName} agent failed: ` + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        function displayResults(report) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Executive Summary
+            let html = `
+                <div class="agent-result ${report.overall_status}">
+                    <div class="agent-name">📊 Executive Summary</div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">Overall Status</div>
+                            <div class="metric-value">${report.overall_status.toUpperCase()}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Test Coverage</div>
+                            <div class="metric-value">${report.executive_summary.test_coverage}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Critical Issues</div>
+                            <div class="metric-value">${report.executive_summary.critical_issues_count}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Total Duration</div>
+                            <div class="metric-value">${report.executive_summary.total_duration}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Critical Issues
+            if (report.critical_issues.length > 0) {
+                html += '<div class="recommendations"><h3>⚠️ Critical Issues</h3>';
+                report.critical_issues.forEach(issue => {
+                    html += `<div class="issue">
+                        <strong>${issue.agent}:</strong> ${issue.issue}<br>
+                        <small>Impact: ${issue.impact}</small>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            // Agent Results
+            html += '<h2>Agent Results</h2>';
+            Object.entries(report.agent_results).forEach(([agentName, result]) => {
+                html += formatAgentResult(agentName, result);
+            });
+
+            // Recommendations
+            if (report.recommendations.length > 0) {
+                html += '<div class="recommendations"><h3>💡 Recommendations</h3><ul>';
+                report.recommendations.slice(0, 5).forEach(rec => {
+                    html += `<li><strong>${rec.agent}:</strong> ${
+                        typeof rec.recommendation === 'object' 
+                            ? rec.recommendation.title || JSON.stringify(rec.recommendation)
+                            : rec.recommendation
+                    }</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            // Next Steps
+            html += '<div class="recommendations"><h3>👉 Next Steps</h3><ol>';
+            report.next_steps.forEach(step => {
+                html += `<li>${step}</li>`;
+            });
+            html += '</ol></div>';
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function formatAgentResult(agentName, result) {
+            let html = `<div class="agent-result ${result.status}">
+                <div class="agent-name">${getAgentIcon(agentName)} ${agentName}</div>`;
+            
+            if (result.status === 'error') {
+                html += `<p>Error: ${result.error}</p>`;
+            } else {
+                // Display key metrics
+                html += '<div class="metrics">';
+                
+                if (result.tests) {
+                    const passed = Object.values(result.tests).filter(t => t === 'pass').length;
+                    const total = Object.keys(result.tests).length;
+                    html += `<div class="metric">
+                        <div class="metric-label">Tests</div>
+                        <div class="metric-value">${passed}/${total}</div>
+                    </div>`;
+                }
+                
+                if (result.endpoints_tested) {
+                    html += `<div class="metric">
+                        <div class="metric-label">Endpoints</div>
+                        <div class="metric-value">${result.endpoints_passed}/${result.endpoints_tested}</div>
+                    </div>`;
+                }
+                
+                if (result.flows_tested) {
+                    html += `<div class="metric">
+                        <div class="metric-label">Flows</div>
+                        <div class="metric-value">${result.flows_passed}/${result.flows_tested}</div>
+                    </div>`;
+                }
+                
+                if (result.websocket_stability) {
+                    html += `<div class="metric">
+                        <div class="metric-label">WebSocket</div>
+                        <div class="metric-value">${result.websocket_stability}</div>
+                    </div>`;
+                }
+                
+                html += '</div>';
+                
+                // Show failures
+                if (result.failed_tests && result.failed_tests.length > 0) {
+                    html += '<div class="test-list"><strong>Failed Tests:</strong><ul>';
+                    result.failed_tests.slice(0, 5).forEach(test => {
+                        html += `<li>${test.test}: ${test.reason}</li>`;
+                    });
+                    if (result.failed_tests.length > 5) {
+                        html += `<li>... and ${result.failed_tests.length - 5} more</li>`;
+                    }
+                    html += '</ul></div>';
+                }
+                
+                // Show errors
+                if (result.errors && result.errors.length > 0) {
+                    html += '<div class="test-list"><strong>Errors:</strong><ul>';
+                    result.errors.slice(0, 3).forEach(error => {
+                        html += `<li>${error}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function displayAgentResult(agentName, result) {
+            const resultsDiv = document.getElementById('results');
+            const existingResult = resultsDiv.querySelector(`[data-agent="${agentName}"]`);
+            const formattedResult = formatAgentResult(agentName, result);
+            
+            if (existingResult) {
+                existingResult.outerHTML = formattedResult;
+            } else {
+                resultsDiv.innerHTML += formattedResult;
+            }
+        }
+
+        function getAgentIcon(agentName) {
+            const icons = {
+                'module-fix': '🔧',
+                'integration-test': '🔌',
+                'ui-flow-test': '🎨',
+                'voice-media-test': '🎤',
+                'betting-logic': '💰',
+                'performance': '⚡',
+                'cross-browser': '🌐'
+            };
+            return icons[agentName] || '🤖';
+        }
+
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-${type}`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('downloadBtn').style.display = 'none';
+            updateStatus('Results cleared. Ready to run tests.', 'ready');
+            currentReport = null;
+        }
+
+        function downloadReport() {
+            if (!currentReport) return;
+            
+            const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `fairwaylive-test-report-${timestamp}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

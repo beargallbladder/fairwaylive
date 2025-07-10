@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairwayLive - Verify Fix</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <style>
+        .test-results {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--dark-gray);
+            border-radius: 15px;
+        }
+        .test-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pass { color: var(--green); font-weight: bold; }
+        .fail { color: var(--hot); font-weight: bold; }
+        .working { color: var(--gray); }
+    </style>
+</head>
+<body>
+    <div class="test-results">
+        <h1 style="color: var(--green); text-align: center;">⛳ FairwayLive Test Suite</h1>
+        
+        <div id="testResults">
+            <div class="test-item">
+                <span>Loading tests...</span>
+                <span class="working">⏳</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; text-align: center;">
+            <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+            <button class="btn-secondary" onclick="window.location.href='/'">Go to App</button>
+        </div>
+    </div>
+
+    <script src="/js/betting-engine.js"></script>
+    <script src="/js/bookmaker-agents.js"></script>
+    <script src="/js/social-feed.js"></script>
+    <script src="/js/swarm-client.js"></script>
+    <script src="/js/app.js"></script>
+    
+    <script>
+        const tests = [];
+        
+        function addTest(name, testFn) {
+            tests.push({ name, testFn });
+        }
+        
+        function displayResult(name, passed, details = '') {
+            const resultsDiv = document.getElementById('testResults');
+            const existing = Array.from(resultsDiv.children).find(el => 
+                el.querySelector('span')?.textContent === name
+            );
+            
+            if (existing) {
+                existing.innerHTML = `
+                    <span>${name}</span>
+                    <span class="${passed ? 'pass' : 'fail'}">${passed ? '✅ PASS' : '❌ FAIL'} ${details}</span>
+                `;
+            } else {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test-item';
+                testDiv.innerHTML = `
+                    <span>${name}</span>
+                    <span class="${passed ? 'pass' : 'fail'}">${passed ? '✅ PASS' : '❌ FAIL'} ${details}</span>
+                `;
+                resultsDiv.appendChild(testDiv);
+            }
+        }
+        
+        // Test 1: Check if app global exists
+        addTest('App Global Variable', () => {
+            const exists = typeof app !== 'undefined';
+            displayResult('App Global Variable', exists, exists ? 'app is accessible' : 'app is undefined');
+            return exists;
+        });
+        
+        // Test 2: Check if betting engine works
+        addTest('Betting Engine', () => {
+            try {
+                const betting = new BettingEngine();
+                const analysis = betting.analyzeTranscription('user', 'This is terrible!');
+                const passed = analysis.sentiment < 0;
+                displayResult('Betting Engine', passed, `Sentiment: ${analysis.sentiment.toFixed(2)}`);
+                return passed;
+            } catch (e) {
+                displayResult('Betting Engine', false, e.message);
+                return false;
+            }
+        });
+        
+        // Test 3: Check if bookmakers work
+        addTest('Bookmaker Agents', () => {
+            try {
+                const bookmakers = new BookmakerAgents();
+                const passed = bookmakers.agents.length === 5;
+                displayResult('Bookmaker Agents', passed, `${bookmakers.agents.length} agents loaded`);
+                return passed;
+            } catch (e) {
+                displayResult('Bookmaker Agents', false, e.message);
+                return false;
+            }
+        });
+        
+        // Test 4: Check if social feed initializes
+        addTest('Social Feed', () => {
+            try {
+                const passed = typeof socialFeed !== 'undefined';
+                displayResult('Social Feed', passed, passed ? 'Feed initialized' : 'Feed undefined');
+                return passed;
+            } catch (e) {
+                displayResult('Social Feed', false, e.message);
+                return false;
+            }
+        });
+        
+        // Test 5: Check if buttons work
+        addTest('Button Functionality', () => {
+            try {
+                // Test if startRound function exists
+                const passed = typeof app.startRound === 'function';
+                displayResult('Button Functionality', passed, passed ? 'Functions accessible' : 'Functions not found');
+                return passed;
+            } catch (e) {
+                displayResult('Button Functionality', false, e.message);
+                return false;
+            }
+        });
+        
+        // Test 6: Check API endpoints
+        addTest('API Endpoints', async () => {
+            try {
+                const response = await fetch('/api/health');
+                const passed = response.ok;
+                displayResult('API Endpoints', passed, `Status: ${response.status}`);
+                return passed;
+            } catch (e) {
+                displayResult('API Endpoints', false, 'Cannot reach API');
+                return false;
+            }
+        });
+        
+        async function runAllTests() {
+            document.getElementById('testResults').innerHTML = '';
+            
+            let passed = 0;
+            let failed = 0;
+            
+            for (const test of tests) {
+                try {
+                    const result = await test.testFn();
+                    if (result) passed++;
+                    else failed++;
+                } catch (e) {
+                    displayResult(test.name, false, 'Error: ' + e.message);
+                    failed++;
+                }
+            }
+            
+            // Summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.cssText = 'margin-top: 2rem; padding: 1rem; background: rgba(0,170,0,0.1); border-radius: 10px; text-align: center;';
+            summaryDiv.innerHTML = `
+                <h2 style="color: ${failed === 0 ? 'var(--green)' : 'var(--hot)'}">
+                    ${failed === 0 ? '🎉 All Tests Passed!' : '⚠️ Some Tests Failed'}
+                </h2>
+                <p>Passed: ${passed} | Failed: ${failed}</p>
+            `;
+            document.getElementById('testResults').appendChild(summaryDiv);
+        }
+        
+        // Auto-run tests on load
+        setTimeout(runAllTests, 500);
+    </script>
+</body>
+</html>
