@@ -1,23 +1,12 @@
 {
   "version": 2,
-  "name": "fairwaylive",
-  "builds": [
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://fairwaylive-api.onrender.com/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    }
-  ],
+  "outputDirectory": "public",
+  "buildCommand": "",
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://fairwaylive-api.onrender.com/api/:path*"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
