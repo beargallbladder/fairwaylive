@@ -1,0 +1,15 @@
+node_modules
+src
+mobile
+.git
+.env
+.env.local
+*.log
+docker-compose.yml
+Dockerfile
+render.yaml
+deploy.sh
+quickstart.sh
+start-fast.sh
+server-simple.js
+package-lock.json

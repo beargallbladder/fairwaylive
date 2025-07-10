@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairwayLive - Bookmaker Agents Demo</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #000;
+        }
+        .demo-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .demo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .demo-header h1 {
+            color: var(--green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .demo-section {
+            margin-bottom: 2rem;
+            background: var(--dark-gray);
+            padding: 1.5rem;
+            border-radius: 15px;
+        }
+        .demo-section h2 {
+            color: var(--green);
+            margin-bottom: 1rem;
+        }
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .demo-btn {
+            background: var(--green);
+            color: var(--black);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .yearly-preview {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        .dominance-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray);
+        }
+        .dominance-stat:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>⛳ FairwayLive Bookmakers</h1>
+            <p style="color: var(--gray);">AI bookies spreading rumors & coaxing bets</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎰 Meet Your Bookmakers</h2>
+            <div class="agents-grid" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <!-- Agents will be populated here -->
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📱 Trigger Bookmaker Reactions</h2>
+            <div class="demo-controls">
+                <button class="demo-btn" onclick="triggerConfidence()">Say "I'm crushing it!"</button>
+                <button class="demo-btn" onclick="triggerStruggle()">Say "This is terrible"</button>
+                <button class="demo-btn" onclick="placeBigBet()">Place Big Bet</button>
+                <button class="demo-btn" onclick="startHotStreak()">Start Hot Streak</button>
+            </div>
+            <div id="recentActivity"></div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🏆 Year-Long Domination Tracker</h2>
+            <div class="yearly-preview">
+                <div class="dominance-stat">
+                    <span>You vs Mike</span>
+                    <span style="color: var(--green);">+2,450 pts</span>
+                </div>
+                <div class="dominance-stat">
+                    <span>You vs Tom</span>
+                    <span style="color: var(--hot);">-850 pts</span>
+                </div>
+                <div class="dominance-stat">
+                    <span>You vs John</span>
+                    <span style="color: var(--green);">+1,200 pts</span>
+                </div>
+                <div class="dominance-stat">
+                    <span style="font-weight: 700;">Total Domination</span>
+                    <span style="color: var(--green); font-weight: 700;">+2,800 pts</span>
+                </div>
+            </div>
+            <p style="margin-top: 1rem; color: var(--gray); font-size: 0.9rem;">
+                End of year: "You fucked your boys in the butt all year long" 🏆
+            </p>
+        </div>
+
+        <button class="social-feed-btn" onclick="socialFeed.toggleFeed()">
+            🎰 <span class="feed-indicator" id="feedCount">0</span>
+        </button>
+    </div>
+
+    <script src="/js/bookmaker-agents.js"></script>
+    <script src="/js/social-feed.js"></script>
+    <script>
+        // Initialize social feed
+        socialFeed.init(document.body);
+        
+        // Display agents
+        function displayAgents() {
+            const grid = document.querySelector('.agents-grid');
+            grid.innerHTML = socialFeed.bookmakers.agents.map(agent => `
+                <div class="agent-card" onclick="selectAgent('${agent.id}')" style="cursor: pointer; padding: 1rem; background: var(--dark-gray); border-radius: 10px; border: 2px solid transparent;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 3rem;">${agent.avatar}</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 1.1rem;">${agent.name}</div>
+                            <div style="color: var(--gray); font-size: 0.9rem; margin-top: 0.25rem;">${agent.style}</div>
+                            <div style="margin-top: 0.5rem;">
+                                ${agent.loyalty_perks.map(perk => 
+                                    `<div style="font-size: 0.8rem; color: var(--green);">• ${perk}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function selectAgent(agentId) {
+            socialFeed.bookmakers.setPreferredAgent(agentId);
+            displayAgents();
+            document.querySelectorAll('.agent-card').forEach((card, index) => {
+                if (socialFeed.bookmakers.agents[index].id === agentId) {
+                    card.style.borderColor = 'var(--green)';
+                    card.style.background = 'rgba(0, 170, 0, 0.1)';
+                } else {
+                    card.style.borderColor = 'transparent';
+                    card.style.background = 'var(--dark-gray)';
+                }
+            });
+        }
+        
+        function updateActivity(message) {
+            const activity = document.getElementById('recentActivity');
+            activity.innerHTML = `<div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 170, 0, 0.1); border-radius: 10px; color: var(--green);">${message}</div>`;
+        }
+        
+        function triggerConfidence() {
+            socialFeed.bookmakers.generateBookieChatter({
+                type: 'confidence_detected',
+                player: 'You',
+                sentiment: 0.8
+            });
+            updateActivity('🔥 Bookmakers reacting to your confidence!');
+        }
+        
+        function triggerStruggle() {
+            socialFeed.bookmakers.generateBookieChatter({
+                type: 'struggle_detected',
+                player: 'You',
+                sentiment: -0.8
+            });
+            updateActivity('📈 Bookmakers smell blood in the water!');
+        }
+        
+        function placeBigBet() {
+            socialFeed.bookmakers.generateBookieChatter({
+                type: 'big_bet_placed',
+                amount: 500,
+                bet: 'You to birdie',
+                player: 'You'
+            });
+            updateActivity('💰 Big bet placed! Bookmakers are talking!');
+        }
+        
+        function startHotStreak() {
+            socialFeed.bookmakers.generateBookieChatter({
+                type: 'hot_streak',
+                player: 'You',
+                streak: 3
+            });
+            updateActivity('🚀 Hot streak detected! Odds adjusting!');
+        }
+        
+        // Update feed count
+        window.addEventListener('social-feed-update', (e) => {
+            document.getElementById('feedCount').textContent = e.detail.feed.length;
+        });
+        
+        // Initial display
+        displayAgents();
+        
+        // Simulate year-long domination
+        setTimeout(() => {
+            socialFeed.bookmakers.updateYearlyDominance('You', 'Mike', 500);
+            socialFeed.bookmakers.updateYearlyDominance('You', 'Mike', 750);
+            socialFeed.bookmakers.updateYearlyDominance('You', 'Mike', 1200);
+            socialFeed.bookmakers.updateYearlyDominance('Tom', 'You', 850);
+            socialFeed.bookmakers.updateYearlyDominance('You', 'John', 1200);
+        }, 1000);
+    </script>
+</body>
+</html>
