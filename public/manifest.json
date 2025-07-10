@@ -1,7 +1,7 @@
 {
-  "name": "FairwayLive",
+  "name": "FairwayLive - Vegas Golf Betting",
   "short_name": "FairwayLive",
-  "description": "Live golf betting with your boys",
+  "description": "Vegas-style golf betting with AI bookmakers. Track who dominates all year long!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
