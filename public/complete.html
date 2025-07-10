@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" content="#000000">
+    <title>FairwayLive - Complete Vegas Golf Experience</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/app-complete.css">
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+    <div id="app">
+        <!-- App renders here -->
+    </div>
+    
+    <!-- Load dependencies first -->
+    <script src="/js/betting-engine.js"></script>
+    <script src="/js/bookmaker-agents.js"></script>
+    <script src="/js/social-feed.js"></script>
+    
+    <!-- Load the COMPLETE app experience -->
+    <script src="/js/app-complete.js"></script>
+    
+    <style>
+        /* Quick fixes for complete experience */
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>
