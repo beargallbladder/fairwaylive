@@ -351,6 +351,14 @@ class ExcuseAgentSystem {
         if (window.aiHierarchy && window.aiHierarchy.isInFriendsMode()) {
             return; // Stay quiet when friends are online
         }
+        
+        // Use mobile emotion bar for excuses
+        if (window.mobileUI) {
+            const emotion = this.getExcuseEmotion(type);
+            const shortMessage = this.getShortenedExcuse(message);
+            window.mobileUI.showAdvocateReaction(emotion, shortMessage);
+            return;
+        }
         const messageDiv = document.createElement('div');
         messageDiv.className = `excuse-message excuse-${type}`;
         
@@ -400,6 +408,34 @@ class ExcuseAgentSystem {
     // HELPER FUNCTIONS
     getPlayerName() {
         return localStorage.getItem('player_name') || 'buddy';
+    }
+
+    // MOBILE UI HELPERS
+    getExcuseEmotion(type) {
+        const emotionMap = {
+            'bad_shot_excuse': '😤',
+            'equipment_excuse': '🔧',
+            'weather_excuse': '🌪️',
+            'course_excuse': '🌱',
+            'rules_excuse': '📋',
+            'mental_excuse': '🧠',
+            'physical_excuse': '🤕',
+            'general': '🤷‍♂️'
+        };
+        return emotionMap[type] || '🤷‍♂️';
+    }
+
+    getShortenedExcuse(message) {
+        // Extract the core excuse from agent format
+        const match = message.match(/: "(.*?)"/);
+        if (match) {
+            return match[1].substring(0, 45) + (match[1].length > 45 ? '...' : '');
+        }
+        
+        // Fallback
+        const parts = message.split(': ');
+        const excuse = parts[parts.length - 1];
+        return excuse.substring(0, 45) + (excuse.length > 45 ? '...' : '');
     }
 
     // PUBLIC API

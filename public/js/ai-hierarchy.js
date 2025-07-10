@@ -299,6 +299,13 @@ class AIHierarchyManager {
     }
 
     displayBookmakerMessage(message, type = 'general') {
+        // Use mobile ticker instead of old overlapping feeds
+        if (window.mobileUI) {
+            window.mobileUI.showBookmakerMessage(message);
+            return;
+        }
+        
+        // Fallback to old system if mobile UI not available
         const messageDiv = document.createElement('div');
         messageDiv.className = `bookmaker-message bookmaker-${type}`;
         

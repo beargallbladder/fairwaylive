@@ -44,6 +44,14 @@ class FairwayLiveComplete {
                 this.excuseAgents.assignExcuseAgent('random');
             }, 4000);
         }
+        
+        // Initialize mobile UI with mock odds
+        if (window.mobileUI) {
+            setTimeout(() => {
+                this.updateMobileOdds();
+                this.setupMobileBettingLines();
+            }, 1000);
+        }
     }
     
     render() {
@@ -600,6 +608,68 @@ class FairwayLiveComplete {
             this.state.audioFeedback = null;
             this.render();
         }, 1000);
+    }
+    
+    // MOBILE UI INTEGRATION
+    updateMobileOdds() {
+        if (!window.mobileUI) return;
+        
+        // Generate dynamic odds based on hole/situation
+        const baseOdds = {
+            birdie: 350,
+            par: 110, 
+            bogey: 200,
+            eagle: 1200
+        };
+        
+        // Add some random movement
+        const odds = {};
+        Object.entries(baseOdds).forEach(([outcome, base]) => {
+            const movement = (Math.random() - 0.5) * 50;
+            odds[outcome] = Math.round(base + movement);
+        });
+        
+        window.mobileUI.updateGameOdds(odds);
+        
+        // Update odds every 8-12 seconds
+        setTimeout(() => {
+            if (this.state.screen === 'round-active') {
+                this.updateMobileOdds();
+            }
+        }, 8000 + Math.random() * 4000);
+    }
+
+    setupMobileBettingLines() {
+        if (!window.mobileUI) return;
+        
+        const bettingLines = [
+            {
+                id: 'birdie',
+                type: 'OUTCOME',
+                description: 'Player makes birdie',
+                odds: 350
+            },
+            {
+                id: 'par_or_better',
+                type: 'PROP',
+                description: 'Par or better on hole',
+                odds: 140
+            },
+            {
+                id: 'three_putt',
+                type: 'PROP', 
+                description: 'Player three-putts',
+                odds: 280
+            },
+            {
+                id: 'excuse_made',
+                type: 'FUN',
+                description: 'Excuse agent blames equipment',
+                odds: 150
+            }
+        ];
+        
+        window.mobileUI.updateBettingLines(bettingLines);
     }
     
     attachEventListeners() {

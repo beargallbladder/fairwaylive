@@ -349,6 +349,14 @@ class BotAdvocateSystem {
         if (window.aiHierarchy && window.aiHierarchy.isInFriendsMode()) {
             return; // Stay quiet when friends are online
         }
+        
+        // Use mobile emotion bar instead of overlapping feeds
+        if (window.mobileUI) {
+            const emotion = this.getEmotionForType(type);
+            const shortMessage = this.getShortenedMessage(message);
+            window.mobileUI.showAdvocateReaction(emotion, shortMessage);
+            return;
+        }
         const messageDiv = document.createElement('div');
         messageDiv.className = `advocate-message advocate-${type}`;
         
@@ -451,6 +459,34 @@ class BotAdvocateSystem {
         if (this.advocateHistory.length > 50) {
             this.advocateHistory = this.advocateHistory.slice(-50);
         }
+    }
+
+    // MOBILE UI HELPERS
+    getEmotionForType(type) {
+        const emotionMap = {
+            'great_shot': '🔥',
+            'pressure_moment': '💪',
+            'big_bet': '💎',
+            'comeback_motivation': '⚡',
+            'momentum_boost': '🚀',
+            'difficult_shot': '🎯',
+            'general': '💯',
+            'encouragement': '👊'
+        };
+        return emotionMap[type] || '💯';
+    }
+
+    getShortenedMessage(message) {
+        // Extract just the core message from bot format
+        const match = message.match(/: "(.*?)"/);
+        if (match) {
+            return match[1].substring(0, 50) + (match[1].length > 50 ? '...' : '');
+        }
+        
+        // Fallback - take last part after colon
+        const parts = message.split(': ');
+        const lastPart = parts[parts.length - 1];
+        return lastPart.substring(0, 50) + (lastPart.length > 50 ? '...' : '');
     }
 
     // PUBLIC API
