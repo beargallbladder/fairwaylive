@@ -37,10 +37,8 @@ class MobileTickerUI {
                 </div>
             </div>
 
-            <!-- MAIN GAME AREA (UNCHANGED) -->
-            <div class="game-area-wrapper">
-                <div id="app"></div>
-            </div>
+            <!-- SPACER FOR MAIN GAME AREA -->
+            <div class="game-area-spacer"></div>
 
             <!-- ODDS STRIP (HORIZONTAL) -->
             <div class="odds-strip" id="odds-strip">
@@ -97,8 +95,8 @@ class MobileTickerUI {
             </div>
         `;
 
-        // Replace old layout
-        document.body.appendChild(mobileContainer);
+        // Insert mobile container but don't replace the main app
+        document.body.insertBefore(mobileContainer, document.body.firstChild);
         
         this.addMobileStyles();
     }
@@ -361,15 +359,32 @@ class MobileTickerUI {
                 left: 0;
                 right: 0;
                 bottom: 0;
-                z-index: 1000;
+                z-index: 100;
                 display: flex;
                 flex-direction: column;
                 background: transparent;
                 pointer-events: none;
             }
 
-            .mobile-ticker-container > * {
+            .mobile-ticker-container .stock-ticker-top,
+            .mobile-ticker-container .odds-strip,
+            .mobile-ticker-container .emotion-bar,
+            .mobile-ticker-container .expandable-zones {
                 pointer-events: auto;
+            }
+
+            .game-area-spacer {
+                flex: 1;
+                pointer-events: none;
+            }
+            
+            /* Make sure main app stays interactive */
+            #app {
+                position: relative;
+                z-index: 50;
+                pointer-events: auto !important;
+                margin-top: 35px; /* Space for ticker */
+                margin-bottom: 150px; /* Space for bottom UI */
             }
 
             /* STOCK TICKER */
@@ -507,11 +522,12 @@ class MobileTickerUI {
 
             /* EXPANDABLE ZONES */
             .expandable-zones {
-                position: absolute;
+                position: fixed;
                 bottom: 100px;
                 left: 0;
                 right: 0;
                 z-index: 1001;
+                pointer-events: auto;
             }
 
             .zone-panel {
