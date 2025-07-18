@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey Homeboy - Bug Testing Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .bug-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .critical {
+            border-left: 5px solid #ff4444;
+        }
+        .major {
+            border-left: 5px solid #ff8800;
+        }
+        .minor {
+            border-left: 5px solid #ffdd00;
+        }
+        .fixed {
+            border-left: 5px solid #44ff44;
+        }
+        h1 {
+            color: #00ff41;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .code-block {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .fix-block {
+            background: rgba(0,255,65,0.1);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .test-result {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .pass {
+            background: #44ff44;
+            color: #000;
+        }
+        .fail {
+            background: #ff4444;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Hey Homeboy - Bug Testing Report</h1>
+    <p>Testing complete.html and related JavaScript files for critical issues</p>
+
+    <div class="bug-section critical">
+        <h2>🔴 CRITICAL BUG #1: Missing viral-mechanics.js Load</h2>
+        <p><strong>Issue:</strong> The viral-mechanics.js file is NOT loaded in complete.html, but other scripts may depend on it.</p>
+        <div class="code-block">
+// Current script loading in complete.html:
+&lt;script src="/js/betting-engine.js"&gt;&lt;/script&gt;
+&lt;script src="/js/bookmaker-agents.js"&gt;&lt;/script&gt;
+&lt;script src="/js/social-feed.js"&gt;&lt;/script&gt;
+&lt;script src="/js/mobile-ticker.js"&gt;&lt;/script&gt;
+&lt;script src="/js/bot-advocates.js"&gt;&lt;/script&gt;
+&lt;script src="/js/excuse-agents.js"&gt;&lt;/script&gt;
+&lt;script src="/js/ai-hierarchy.js"&gt;&lt;/script&gt;
+// MISSING: viral-mechanics.js
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Add viral-mechanics.js to the script loading sequence:
+            <div class="code-block">
+&lt;!-- Load dependencies first --&gt;
+&lt;script src="/js/betting-engine.js"&gt;&lt;/script&gt;
+&lt;script src="/js/bookmaker-agents.js"&gt;&lt;/script&gt;
+&lt;script src="/js/social-feed.js"&gt;&lt;/script&gt;
+&lt;script src="/js/mobile-ticker.js"&gt;&lt;/script&gt;
+&lt;script src="/js/bot-advocates.js"&gt;&lt;/script&gt;
+&lt;script src="/js/excuse-agents.js"&gt;&lt;/script&gt;
+&lt;script src="/js/ai-hierarchy.js"&gt;&lt;/script&gt;
+&lt;script src="/js/viral-mechanics.js"&gt;&lt;/script&gt; &lt;!-- ADD THIS --&gt;
+            </div>
+        </div>
+    </div>
+
+    <div class="bug-section critical">
+        <h2>🔴 CRITICAL BUG #2: WebSocket Protocol Issue</h2>
+        <p><strong>Issue:</strong> Using ws:// instead of wss:// for WebSocket connections when deployed to HTTPS</p>
+        <div class="code-block">
+// Found in app.js:353
+this.state.ws = new WebSocket(`ws://${window.location.host}`);
+
+// Found in swarm-client.js:14
+this.ws = new WebSocket(`ws://${window.location.host}/swarm`);
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Use protocol-relative WebSocket URLs:
+            <div class="code-block">
+// app.js:353
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+this.state.ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+// swarm-client.js:14
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+this.ws = new WebSocket(`${protocol}//${window.location.host}/swarm`);
+            </div>
+        </div>
+    </div>
+
+    <div class="bug-section major">
+        <h2>🟠 MAJOR BUG #3: Mobile UI Blocking Interactions</h2>
+        <p><strong>Issue:</strong> Mobile ticker UI creates a full-screen overlay with pointer-events: none, but may still block certain interactions</p>
+        <div class="code-block">
+// mobile-ticker.js:365-367
+.mobile-ticker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    pointer-events: none;
+}
+
+// BUT the app element has:
+#app {
+    z-index: 50; // Lower than mobile UI
+}
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Restructure mobile UI to avoid full-screen overlay:
+            <div class="code-block">
+.mobile-ticker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Remove bottom: 0 */
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* Add specific positioning for bottom elements */
+.expandable-zones {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="bug-section major">
+        <h2>🟠 MAJOR BUG #4: Missing Manifest Icons</h2>
+        <p><strong>Issue:</strong> manifest.json references icon files that may not exist</p>
+        <div class="code-block">
+"icons": [
+    {
+        "src": "/assets/icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+    },
+    {
+        "src": "/assets/icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+    }
+]
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Ensure these icon files exist in /public/assets/ directory
+        </div>
+    </div>
+
+    <div class="bug-section minor">
+        <h2>🟡 MINOR BUG #5: Onboarding Flow Redirect Loop Risk</h2>
+        <p><strong>Issue:</strong> Potential infinite redirect if localStorage is cleared while on complete.html</p>
+        <div class="code-block">
+// viral-onboarding.js:369
+window.location.href = '/complete.html';
+
+// complete.html:32-36
+if (hasOnboarded !== 'true') {
+    document.write('&lt;script src="/js/viral-onboarding.js"&gt;&lt;\/script&gt;');
+} else {
+    document.write('&lt;script src="/js/app-complete.js"&gt;&lt;\/script&gt;');
+}
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Add safeguards to prevent redirect loops:
+            <div class="code-block">
+// In viral-onboarding.js skipOnboarding():
+skipOnboarding() {
+    if (window.location.pathname === '/complete.html') {
+        // Force load the main app instead of redirecting
+        const script = document.createElement('script');
+        script.src = '/js/app-complete.js';
+        document.body.appendChild(script);
+        return;
+    }
+    window.location.href = '/complete.html';
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="bug-section minor">
+        <h2>🟡 MINOR BUG #6: Demo Controls Always Visible</h2>
+        <p><strong>Issue:</strong> Demo controls are always visible in production</p>
+        <div class="code-block">
+// complete.html:40-49
+&lt;div id="demo-controls" style="position: fixed; top: 10px; right: 10px; z-index: 10000;..."&gt;
+    &lt;button onclick="window.aiHierarchy.simulateFriendJoining('Mike')"&gt;
+        Friend Joins
+    &lt;/button&gt;
+    ...
+&lt;/div&gt;
+        </div>
+        <div class="fix-block">
+            <strong>FIX:</strong> Hide demo controls in production or add toggle:
+            <div class="code-block">
+// Add to complete.html
+&lt;script&gt;
+    // Hide demo controls in production
+    if (window.location.hostname !== 'localhost' && 
+        !window.location.hostname.includes('dev')) {
+        document.getElementById('demo-controls').style.display = 'none';
+    }
+&lt;/script&gt;
+            </div>
+        </div>
+    </div>
+
+    <div class="bug-section">
+        <h2>✅ Test Results Summary</h2>
+        <div class="test-result fail">2 CRITICAL BUGS</div>
+        <div class="test-result fail">2 MAJOR BUGS</div>
+        <div class="test-result fail">2 MINOR BUGS</div>
+        
+        <h3>Console Error Predictions:</h3>
+        <ul>
+            <li>❌ ReferenceError: viralMechanics is not defined (if any code tries to use it)</li>
+            <li>❌ WebSocket connection failed (when deployed to HTTPS)</li>
+            <li>⚠️ Failed to load resource: 404 for icon files</li>
+            <li>⚠️ Possible touch event issues on mobile due to z-index conflicts</li>
+        </ul>
+
+        <h3>Quick Fixes Priority:</h3>
+        <ol>
+            <li><strong>Add viral-mechanics.js to complete.html</strong></li>
+            <li><strong>Fix WebSocket protocol detection</strong></li>
+            <li><strong>Adjust mobile UI z-index structure</strong></li>
+            <li><strong>Create missing icon files or update manifest.json</strong></li>
+            <li><strong>Add production check for demo controls</strong></li>
+            <li><strong>Add safeguards for onboarding redirects</strong></li>
+        </ol>
+    </div>
+
+    <script>
+        // Test script to verify bugs
+        console.log('🔍 Testing for bugs...');
+        
+        // Test 1: Check if viral-mechanics.js would be loaded
+        console.log('Test 1 - Viral Mechanics:', typeof window.ViralMechanics !== 'undefined' ? '✅ PASS' : '❌ FAIL');
+        
+        // Test 2: Check WebSocket protocol
+        const wouldUseSecure = window.location.protocol === 'https:';
+        console.log('Test 2 - WebSocket Protocol:', wouldUseSecure ? '⚠️ Would fail with ws://' : '✅ Currently OK');
+        
+        // Test 3: Check for z-index conflicts
+        const appElement = document.getElementById('app');
+        if (appElement) {
+            const appZIndex = window.getComputedStyle(appElement).zIndex;
+            console.log('Test 3 - Z-Index:', appZIndex === '50' ? '⚠️ Potential conflict' : '✅ OK');
+        }
+        
+        // Test 4: Check localStorage
+        const hasOnboarded = localStorage.getItem('hasOnboarded');
+        console.log('Test 4 - Onboarding State:', hasOnboarded);
+    </script>
+</body>
+</html>

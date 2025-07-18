@@ -1,0 +1,192 @@
+// BUG FIXES FOR HEY HOMEBOY APP
+// Apply these changes to fix critical issues
+
+// ============================================
+// FIX 1: Update complete.html
+// ============================================
+// File: /public/complete.html
+// Line 27: Add missing viral-mechanics.js
+
+BEFORE:
+    <script src="/js/ai-hierarchy.js"></script>
+    
+    <!-- Check for onboarding first -->
+
+AFTER:
+    <script src="/js/ai-hierarchy.js"></script>
+    <script src="/js/viral-mechanics.js"></script>
+    
+    <!-- Check for onboarding first -->
+
+// ============================================
+// FIX 2: WebSocket Protocol Detection
+// ============================================
+// File: /public/js/app.js
+// Line 353: Fix WebSocket protocol
+
+BEFORE:
+    this.state.ws = new WebSocket(`ws://${window.location.host}`);
+
+AFTER:
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    this.state.ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+// File: /public/js/swarm-client.js  
+// Line 14: Fix WebSocket protocol
+
+BEFORE:
+    this.ws = new WebSocket(`ws://${window.location.host}/swarm`);
+
+AFTER:
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    this.ws = new WebSocket(`${protocol}//${window.location.host}/swarm`);
+
+// ============================================
+// FIX 3: Mobile UI Z-Index Structure
+// ============================================
+// File: /public/js/mobile-ticker.js
+// Line 356-367: Update mobile container styles
+
+BEFORE:
+    .mobile-ticker-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        background: transparent;
+        pointer-events: none;
+    }
+
+AFTER:
+    .mobile-ticker-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        /* Remove bottom: 0 to prevent full overlay */
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        background: transparent;
+        pointer-events: none;
+    }
+
+// Also update expandable zones positioning:
+// Line 524-530:
+
+BEFORE:
+    .expandable-zones {
+        position: fixed;
+        bottom: 100px;
+        left: 0;
+        right: 0;
+        z-index: 1001;
+        pointer-events: auto;
+    }
+
+AFTER:
+    .expandable-zones {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1001;
+        pointer-events: auto;
+        max-height: 50vh; /* Prevent covering entire screen */
+    }
+
+// ============================================
+// FIX 4: Onboarding Redirect Loop Prevention
+// ============================================
+// File: /public/js/viral-onboarding.js
+// Line 372-379: Update skipOnboarding method
+
+BEFORE:
+    skipOnboarding() {
+        // User has already onboarded
+        if (window.location.pathname === '/complete.html') {
+            // Already on the right page
+            return;
+        }
+        window.location.href = '/complete.html';
+    }
+
+AFTER:
+    skipOnboarding() {
+        // User has already onboarded
+        if (window.location.pathname.includes('complete')) {
+            // Already on the right page - force load app
+            if (!window.app && !window.appLoading) {
+                window.appLoading = true;
+                const script = document.createElement('script');
+                script.src = '/js/app-complete.js';
+                script.onload = () => { window.appLoading = false; };
+                document.body.appendChild(script);
+            }
+            return;
+        }
+        window.location.href = '/complete.html';
+    }
+
+// ============================================
+// FIX 5: Demo Controls Production Check
+// ============================================
+// File: /public/complete.html
+// After line 49, add:
+
+    </div>
+    
+    <script>
+        // Hide demo controls in production
+        if (window.location.hostname !== 'localhost' && 
+            !window.location.hostname.includes('dev') &&
+            !window.location.search.includes('debug=true')) {
+            document.getElementById('demo-controls').style.display = 'none';
+        }
+    </script>
+
+// ============================================
+// FIX 6: Create Missing Icon Files
+// ============================================
+// Create these files in /public/assets/:
+// - icon-192.png (192x192 pixels)
+// - icon-512.png (512x512 pixels)
+
+// Or update manifest.json to remove icon references if not needed
+
+// ============================================
+// FIX 7: Add Error Boundaries
+// ============================================
+// File: /public/js/app-complete.js
+// Add to constructor (line 23):
+
+    constructor() {
+        // Add error handling
+        window.addEventListener('error', (e) => {
+            console.error('App Error:', e);
+            // Prevent app crash from missing dependencies
+            if (e.message.includes('viralMechanics')) {
+                console.warn('Viral mechanics not loaded, continuing without it');
+                e.preventDefault();
+            }
+        });
+        
+        // ... rest of constructor
+
+// ============================================
+// TESTING CHECKLIST
+// ============================================
+1. ✓ Load complete.html and check console for errors
+2. ✓ Test WebSocket connection on HTTPS
+3. ✓ Test mobile UI doesn't block main app interactions
+4. ✓ Clear localStorage and test onboarding flow
+5. ✓ Verify demo controls hidden in production
+6. ✓ Test voice recording functionality
+7. ✓ Test betting flow from voice to confirmation
+8. ✓ Check all animations and transitions work
+9. ✓ Test on actual mobile devices
+10. ✓ Verify PWA installation works correctly

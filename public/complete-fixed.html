@@ -24,20 +24,23 @@
     <script src="/js/bot-advocates.js"></script>
     <script src="/js/excuse-agents.js"></script>
     <script src="/js/ai-hierarchy.js"></script>
-    <script src="/js/viral-mechanics.js"></script>
+    <script src="/js/viral-mechanics.js"></script> <!-- FIXED: Added missing script -->
     
     <!-- Check for onboarding first -->
     <script>
-        // If not onboarded, load onboarding instead
+        // Prevent redirect loops
         const hasOnboarded = localStorage.getItem('hasOnboarded');
-        if (hasOnboarded !== 'true') {
+        const isOnCompletePage = window.location.pathname.includes('complete');
+        
+        if (hasOnboarded !== 'true' && !window.onboardingLoaded) {
+            window.onboardingLoaded = true;
             document.write('<script src="/js/viral-onboarding.js"><\/script>');
         } else {
             document.write('<script src="/js/app-complete.js"><\/script>');
         }
     </script>
     
-    <!-- Demo Controls (hidden in production) -->
+    <!-- Demo Controls (Hidden in Production) -->
     <div id="demo-controls" style="position: fixed; top: 10px; right: 10px; z-index: 10000; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; display: none;">
         <button onclick="window.aiHierarchy.simulateFriendJoining('Mike')" 
                 style="padding: 5px 10px; margin: 2px; background: #27ae60; color: white; border: none; border-radius: 4px; font-size: 12px;">
@@ -48,6 +51,16 @@
             Friend Leaves
         </button>
     </div>
+    
+    <!-- Show demo controls only in development -->
+    <script>
+        // Only show demo controls on localhost or dev environments
+        if (window.location.hostname === 'localhost' || 
+            window.location.hostname.includes('dev') ||
+            window.location.search.includes('debug=true')) {
+            document.getElementById('demo-controls').style.display = 'block';
+        }
+    </script>
 
     <style>
         /* Quick fixes for complete experience */
@@ -65,6 +78,22 @@
                 transform: translate(-50%, 0);
                 opacity: 1;
             }
+        }
+        
+        /* Fix for mobile UI z-index issues */
+        #app {
+            position: relative;
+            z-index: 50;
+            pointer-events: auto !important;
+        }
+        
+        /* Ensure mobile UI doesn't block main content */
+        .mobile-ticker-container {
+            pointer-events: none !important;
+        }
+        
+        .mobile-ticker-container > * {
+            pointer-events: auto !important;
         }
     </style>
 </body>

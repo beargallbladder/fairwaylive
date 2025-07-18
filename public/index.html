@@ -4,19 +4,468 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <!-- SEO Meta Tags -->
+    <title>Hey Homeboy - Turn Golf Into Vegas 🎰⛳ Live Betting With Friends</title>
+    <meta name="description" content="Bet on every shot, talk trash with AI bots, track who's dominating all year. The most fun golf app ever created. Join 2,847 players betting live RIGHT NOW!">
+    <meta name="keywords" content="golf betting, golf app, live golf betting, golf with friends, golf trash talk, golf gambling, golf side bets">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://heyhomeboy.com/">
+    <meta property="og:title" content="Hey Homeboy - Golf Betting That Slaps 🎰⛳">
+    <meta property="og:description" content="Join 2,847 players turning golf into Vegas! Live betting, AI trash talk, year-long domination tracking. Your homeboys are waiting...">
+    <meta property="og:image" content="https://heyhomeboy.com/social-share.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://heyhomeboy.com/">
+    <meta property="twitter:title" content="Hey Homeboy - Golf Betting That Slaps 🎰⛳">
+    <meta property="twitter:description" content="Turn every golf shot into a bet. AI bots talking trash. Track who dominates all year. Join the action!">
+    <meta property="twitter:image" content="https://heyhomeboy.com/social-share.png">
+    
+    <!-- App Meta -->
+    <meta name="apple-mobile-web-app-title" content="Hey Homeboy">
+    <meta name="application-name" content="Hey Homeboy">
     <meta name="theme-color" content="#000000">
-    <title>FairwayLive - Vegas-Style Golf Betting</title>
-    <link rel="stylesheet" href="/css/app.css">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+        }
+        
+        /* LIVE ACTIVITY TICKER */
+        .live-ticker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #0f0;
+            color: #000;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .ticker-item {
+            margin-right: 50px;
+        }
+        
+        /* STATS BAR */
+        .stats-bar {
+            position: fixed;
+            top: 35px;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: 2px solid #333;
+            z-index: 999;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin-top: 100px;
+        }
+        
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #0f0, #00ff41);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .tagline {
+            font-size: 20px;
+            color: #ccc;
+            margin-bottom: 40px;
+        }
+        
+        /* CTA BUTTONS */
+        .cta-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #0f0, #00ff41);
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,255,65,0.5);
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+        }
+        
+        /* LIVE ACTIVITY FEED */
+        .activity-feed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.95);
+            padding: 20px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        
+        .activity-title {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        
+        .activity-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .activity-emoji {
+            font-size: 24px;
+        }
+        
+        .activity-text {
+            flex: 1;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* SOCIAL PROOF */
+        .social-proof {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,255,65,0.1);
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 15px;
+            max-width: 300px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        .proof-text {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            h1 { font-size: 36px; }
+            .tagline { font-size: 16px; }
+            .stats-bar { flex-wrap: wrap; }
+            .activity-feed { max-height: 30vh; }
+        }
+    </style>
 </head>
 <body>
-    <div id="app"></div>
-    <script src="/js/swarm-client.js"></script>
-    <script src="/js/betting-engine.js"></script>
-    <script src="/js/bookmaker-agents.js"></script>
-    <script src="/js/social-feed.js"></script>
-    <script src="/js/app.js"></script>
+    <!-- LIVE TICKER -->
+    <div class="live-ticker">
+        <div class="ticker-content" id="ticker">
+            <span class="ticker-item">🔥 Mike just won $340 on birdie!</span>
+            <span class="ticker-item">💰 Sarah's crushing it - up $1,250 today</span>
+            <span class="ticker-item">😤 Tom blamed the wind again (3rd time today)</span>
+            <span class="ticker-item">🎯 John's on a 5-hole par streak!</span>
+            <span class="ticker-item">🏆 New record: 47 bets placed in one round</span>
+        </div>
+    </div>
+    
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-number" id="playerCount">2,847</div>
+            <div class="stat-label">Playing Now</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="betCount">$48,392</div>
+            <div class="stat-label">Bet Today</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number" id="activeGames">394</div>
+            <div class="stat-label">Live Rounds</div>
+        </div>
+    </div>
+    
+    <!-- HERO -->
+    <div class="hero">
+        <div class="main-content">
+            <div class="logo">⛳🎰</div>
+            <h1>HEY HOMEBOY</h1>
+            <p class="tagline">Turn Golf Into Vegas</p>
+            
+            <div class="cta-container">
+                <button class="cta-button" onclick="startPlaying()">
+                    START PLAYING NOW
+                </button>
+                <button class="cta-button secondary" onclick="watchLive()">
+                    WATCH LIVE ROUNDS
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LIVE ACTIVITY FEED -->
+    <div class="activity-feed">
+        <div class="activity-title">🔴 LIVE RIGHT NOW</div>
+        <div id="activityFeed">
+            <!-- Activities populate here -->
+        </div>
+    </div>
+    
+    <!-- SOCIAL PROOF POPUP -->
+    <div class="social-proof" id="socialProof" style="display: none;">
+        <div class="proof-text" id="proofText"></div>
+    </div>
+    
+    <script>
+        // LIVE ACTIVITY SIMULATION
+        const activities = [
+            { emoji: '💰', text: '{name} just won ${amount} on {shot}!', type: 'win' },
+            { emoji: '🔥', text: '{name} is on fire! {streak} in a row!', type: 'streak' },
+            { emoji: '😤', text: '{name}: "{excuse}"', type: 'excuse' },
+            { emoji: '🎯', text: '{name} called their shot and NAILED IT!', type: 'epic' },
+            { emoji: '💀', text: '{name} found the water... again', type: 'fail' },
+            { emoji: '🤝', text: '{name} and {friend} just bet ${amount}', type: 'bet' },
+            { emoji: '📈', text: 'Odds just moved on Hole {hole}', type: 'odds' },
+            { emoji: '🏆', text: '{name} took the lead!', type: 'lead' }
+        ];
+        
+        const names = ['Mike', 'Sarah', 'Tom', 'John', 'Alex', 'Emma', 'Ryan', 'Lisa', 'Chris', 'Kate'];
+        const excuses = [
+            'These shafts are too whippy',
+            'Wind changed mid-swing',
+            'Sun was in my eyes',
+            'Course conditions are brutal',
+            'Haven\'t played in a week'
+        ];
+        const shots = ['birdie', 'eagle', 'par save', 'long putt', '30-footer'];
+        
+        function generateActivity() {
+            const activity = activities[Math.floor(Math.random() * activities.length)];
+            const name = names[Math.floor(Math.random() * names.length)];
+            const friend = names[Math.floor(Math.random() * names.length)];
+            const amount = Math.floor(Math.random() * 500) + 50;
+            const hole = Math.floor(Math.random() * 18) + 1;
+            const streak = Math.floor(Math.random() * 5) + 3;
+            const excuse = excuses[Math.floor(Math.random() * excuses.length)];
+            const shot = shots[Math.floor(Math.random() * shots.length)];
+            
+            let text = activity.text
+                .replace('{name}', name)
+                .replace('{friend}', friend)
+                .replace('{amount}', amount)
+                .replace('{hole}', hole)
+                .replace('{streak}', streak)
+                .replace('{excuse}', excuse)
+                .replace('{shot}', shot);
+            
+            return { emoji: activity.emoji, text, type: activity.type };
+        }
+        
+        function addActivity() {
+            const feed = document.getElementById('activityFeed');
+            const activity = generateActivity();
+            
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+                <span class="activity-emoji">${activity.emoji}</span>
+                <div class="activity-text">${activity.text}</div>
+                <div class="activity-time">just now</div>
+            `;
+            
+            feed.insertBefore(item, feed.firstChild);
+            
+            // Keep only last 10 activities
+            while (feed.children.length > 10) {
+                feed.removeChild(feed.lastChild);
+            }
+            
+            // Show social proof for big wins
+            if (activity.type === 'win' || activity.type === 'epic') {
+                showSocialProof(activity.text);
+            }
+        }
+        
+        function showSocialProof(text) {
+            const proof = document.getElementById('socialProof');
+            const proofText = document.getElementById('proofText');
+            proofText.textContent = text;
+            proof.style.display = 'block';
+            
+            setTimeout(() => {
+                proof.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Update stats
+        function updateStats() {
+            const playerCount = document.getElementById('playerCount');
+            const betCount = document.getElementById('betCount');
+            const activeGames = document.getElementById('activeGames');
+            
+            // Simulate live changes
+            const players = parseInt(playerCount.textContent.replace(',', ''));
+            const bets = parseInt(betCount.textContent.replace('$', '').replace(',', ''));
+            const games = parseInt(activeGames.textContent);
+            
+            playerCount.textContent = (players + Math.floor(Math.random() * 10) - 3).toLocaleString();
+            betCount.textContent = '$' + (bets + Math.floor(Math.random() * 1000)).toLocaleString();
+            activeGames.textContent = games + Math.floor(Math.random() * 5) - 2;
+        }
+        
+        // Start simulation
+        setInterval(addActivity, 3000);
+        setInterval(updateStats, 5000);
+        
+        // Add initial activities
+        for (let i = 0; i < 5; i++) {
+            addActivity();
+        }
+        
+        // Navigation functions
+        function startPlaying() {
+            // Track conversion
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'click', {
+                    event_category: 'CTA',
+                    event_label: 'Start Playing'
+                });
+            }
+            window.location.href = '/complete.html';
+        }
+        
+        function watchLive() {
+            // Track interest
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'click', {
+                    event_category: 'CTA',
+                    event_label: 'Watch Live'
+                });
+            }
+            window.location.href = '/complete.html?mode=spectator';
+        }
+    </script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
 </body>
 </html>

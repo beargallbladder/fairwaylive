@@ -11,7 +11,8 @@ class SwarmClient {
 
     async connect() {
         return new Promise((resolve, reject) => {
-            this.ws = new WebSocket(`ws://${window.location.host}/swarm`);
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            this.ws = new WebSocket(`${protocol}//${window.location.host}/swarm`);
             
             this.ws.onopen = () => {
                 console.log('🚀 Connected to swarm');
